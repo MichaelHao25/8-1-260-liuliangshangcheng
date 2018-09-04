@@ -1,0 +1,166 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+
+<head design-width="750">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+	<!-- 优先使用 IE 最新版本和 Chrome -->
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<!-- 启用360浏览器的极速模式(webkit) -->
+	<!-- <link rel="shortcut icon" type="image/ico" href="/favicon.ico"/> -->
+	<!-- 添加 favicon icon -->
+	<meta name="renderer" content="webkit">
+	<title>Document</title>
+	<link rel="stylesheet" href="css/public.css" />
+	<script src="js/font-size.js"></script>
+</head>
+
+<body class="bg-gradient">
+
+	<header class="header">
+		<a class="brand">
+			<img src="img/6ab4a81785e86f45e26b385c358f7a6c-166+224.png" alt="">
+		</a>
+	</header>
+	<main class="main">
+		<div class="pb30">
+			<div class="row bdrs">
+				<input type="text" class="input token" placeholder="请填写邀请人手机号">
+			</div>
+		</div>
+		<div class="pb30">
+			<div class="row bdrs">
+				<input type="text" class="input mobile-number" placeholder="请输入手机号码">
+			</div>
+		</div>
+		<div class="pb30">
+			<div class="row bdrs">
+				<input type="password" class="input password" placeholder="请输入登入密码">
+			</div>
+		</div>
+		<div class="row bdrs df p0 aic">
+			<input type="text" class="input verification-code" placeholder="请输入验证码
+			">
+			<a href="#" class="get-verification-code">获取验证码</a>
+		</div>
+		<div class="p90-0-50">
+			<div class="row">
+				<a href="#" class="submit">立即登入</a>
+			</div>
+		</div>
+		<div class="row tar">
+			<a href="#" class="link">我要登入</a>
+		</div>
+	</main>
+	<script src="js/jquery-3.1.0.min.js"></script>
+	<script src="js/layer/layer.js"></script>
+	<script>
+		function CountDown(i_time, o_elements) {
+			var i = i_time;
+			var s_text = $(o_elements).text();
+			$(o_elements).text(i + 's');
+			var timer_id = setInterval(function () {
+				if (i == 1) {
+					clearInterval(timer_id)
+					$(o_elements).text(s_text);
+				} else {
+					i--;
+					$(o_elements).text(i + 's');
+				}
+			}, 1000)
+		}
+		$('.get-verification-code').on('click', function (e) {
+			e.preventDefault();
+			var get_verification_code = layer.load(1, {
+				shade: [0.3, '#000'] //0.1透明度的白色背景
+			});
+			var value = $('.mobile-number').val();
+			if (this.flag == true) {
+				alert('1分种只允许发送一条短信！')
+				layer.close(get_verification_code);
+				return;
+			}
+			if ('' == value) {
+				alert('请输入手机号');
+				layer.close(get_verification_code);
+				return;
+			} else {
+				this.flag = false;
+				var that = this;
+				CountDown(60, '.get-verification-code');
+				setTimeout(function () {
+					that.flag = false;
+					console.log('CountDown End;');
+				}, 60000)
+			}
+			if (!this.flag) {
+				this.flag = true;
+				$.ajax({
+					url: '/Home/Ajax/sendRegCode',
+					method: 'post',
+					data: "mobile=" + value,
+					dataType: 'json',
+					timeout: 3000,
+					success: function (data) {
+						console.log('success' + data);
+						layer.close(get_verification_code);
+						alert(data);
+					},
+					complete: function (jqxhr, status) {
+						console.log('complete' + status);
+					},
+					error: function (jqXHR, textStatus, errorThrown) {
+						console.log('error' + errorThrown);
+						layer.close(get_verification_code);
+						alert('超时请重试！')
+
+					}
+				})
+			}
+		})
+		$('.submit').on('click', function (e) {
+			e.preventDefault();
+			var register = layer.load(1, {
+				shade: [0.3, '#000'] //0.1透明度的白色背景
+			});
+			var user_name = $('.mobile-number').val();
+			var sms_code = $('.verification-code').val();
+			var password = $('.password').val();
+			var token = $('.token').val();
+			if (user_name == '' || password == '' || '' == sms_code || '' == token) {
+				alert('用户名或者密码不为空')
+				layer.close(register);
+				return;
+			}
+			$.ajax({
+				url: '/Index.php/Home/Reg/reg',
+				method: 'post',
+				data: 'f=' +
+					+'&phone=' + user_name + '&code=' + sms_code + '&pwd=' + password,
+				dataType: 'json',
+				timeout: 3000,
+				success: function (data) {
+					console.log('success' + data);
+					if (data.status == 1) {
+						layer.close(register);
+						window.location.pathname = "/Home/Login/index.html";
+					} else {
+						alert(data.msg);
+						layer.close(register);
+						return;
+					}
+				},
+				complete: function (jqxhr, status) {
+					console.log('complete' + status);
+				},
+				error: function (jqXHR, textStatus, errorThrown) {
+					console.log('error' + errorThrown);
+
+				}
+			})
+
+		})
+	</script>
+</body>
+
+</html>

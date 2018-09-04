@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" class="full-screen">
+
+<head design-width="750">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <!-- 优先使用 IE 最新版本和 Chrome -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <!-- 启用360浏览器的极速模式(webkit) -->
+    <!-- <link rel="shortcut icon" type="image/ico" href="/favicon.ico"/> -->
+    <!-- 添加 favicon icon -->
+    <meta name="renderer" content="webkit">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/public.css" />
+    <script src="js/font-size.js"></script>
+</head>
+
+<body style="background-image: url('img/d38d0fa9502eea97352f262abc828063-1080+2499.jpg');">
+    <!-- <body style="background-image: url('img/bili.jpg');"> -->
+
+
+    <div class="recruit-container">
+        <div class="progress-component">
+            <span></span>
+            <div class="container">
+                <div class="bar">
+                </div>
+            </div>
+        </div>
+        <div class="pic">
+            <img src="img/f2b6b1f76bba1123c6a34f2d9688582a-433+83.png" alt="">
+        </div>
+        <div class="btn-group">
+            <a href="#" class="renchou"></a>
+            <a href="#"></a>
+            <a href="#"></a>
+        </div>
+    </div>
+    <div class="add-number-layout">
+        <h3>
+
+        </h3>
+        <div class="row">
+            <div class="min">
+            </div>
+            <input type="tel" value="1">
+            <div class="add">
+
+            </div>
+        </div>
+        <a href="#" class="enter">
+            <img src="img/e5b34acbaa6e5273d68b54f50dfb437d-159+41.png" alt="">
+        </a>
+    </div>
+    <div class="full-layout"></div>
+    <script src="js/jquery-3.1.0.min.js"></script>
+    <script src="js/layer/layer.js"></script>
+    <script>
+        // function setinter() {
+        //     $(".chain_bean").animate({
+        //         "margin-top": "0.9rem"
+        //     }, 700, null, function () {
+        //         $(".chain_bean").animate({
+        //             "margin-top": "0.5rem"
+        //         }, 700)
+        //     })
+        // }
+        // setinter();
+        // setInterval(function () {
+        //     $(".chain_bean").animate({
+        //         "margin-top": "0.9rem"
+        //     }, 700, null, function () {
+        //         $(".chain_bean").animate({
+        //             "margin-top": "0.5rem"
+        //         }, 700)
+        //     })
+        // }, 1400);
+        $.ajax({
+            url: '/Home/Shop/get_shop_num',
+            method: 'get',
+            dataType: 'json',
+            timeout: 3000,
+            success: function (data) {
+                console.log('success' + data);
+                if (data.status) {
+                    var total = parseInt(data.totle_num)
+                    var current = parseInt(data.re_num)
+                    $('.recruit-container .progress-component span').text(current)
+                    var rote = current / total * 100;
+                    $('.recruit-container .progress-component .container').css('width', rote + '%');
+
+                } else {
+                    layer.msg('网络异常!');
+                    return;
+                }
+            },
+            complete: function (jqxhr, status) {
+                console.log('complete' + status);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log('error' + errorThrown);
+                layer.msg('超时请重试！');
+            }
+        })
+
+        $('.recruit-container .btn-group a.renchou').on('click', function (e) {
+            e.preventDefault();
+            $('.add-number-layout').fadeIn();
+            $('.full-layout').show();
+        })
+        $('.full-layout').on('click',function(e) {
+            e.preventDefault();
+            $('.full-layout').hide();
+            $('.add-number-layout').fadeOut();
+        });
+        $('.add-number-layout a').on('click', function (e) {
+            e.preventDefault();
+
+            var layer_load = layer.load(1, {
+                shade: [0.3, '#000'] //0.1透明度的白色背景
+            });
+            var value = getValue();
+            $.ajax({
+                url: '/Home/Shop/buy_liuliangdou_cl',
+                data: 'num=' + value,
+                method: 'post',
+                dataType: 'json',
+                timeout: 3000,
+                success: function (data) {
+                    console.log('success' + data);
+                    layer.close(layer_load)
+                    if (data.status) {
+                        layer.msg(data.info);
+                        window.location.reload();
+                    } else {
+                        layer.msg(data.info);
+                        return;
+                    }
+                },
+                complete: function (jqxhr, status) {
+                    console.log('complete' + status);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log('error' + errorThrown);
+                    layer.close(layer_load)
+                    layer.msg('超时请重试！');
+                }
+            })
+        })
+
+        function getValue() {
+            return parseInt($('.add-number-layout .row input').val());
+        }
+
+        function setValue(value) {
+            $('.add-number-layout .row input').val(value);
+        }
+        $('.add-number-layout .row').on('click', '.min', function (e) {
+            e.preventDefault();
+            var value = getValue();
+            if (value <= 1) {
+                setValue(1);
+            } else {
+                setValue(value - 1);
+            }
+        }).on('click', '.add', function (e) {
+            e.preventDefault();
+
+            var value = getValue();
+            setValue(value + 1);
+        })
+    </script>
+</body>
+
+</html>

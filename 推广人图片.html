@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" class="full-screen">
+
+<head design-width="750">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <!-- 优先使用 IE 最新版本和 Chrome -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <!-- 启用360浏览器的极速模式(webkit) -->
+    <!-- <link rel="shortcut icon" type="image/ico" href="/favicon.ico"/> -->
+    <!-- 添加 favicon icon -->
+    <meta name="renderer" content="webkit">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/public.css" />
+    <script src="js/font-size.js"></script>
+</head>
+
+<body style="background-image: url('img/4d478302bfbea9a269d908055f8cbb6d-1080+2499.jpg');">
+
+
+    <a href="#" class="btn-expand">
+        <img src="img/19175cdd9c37c5d0f9b656cf4ecacb76-452+122.png" alt="">
+    </a>
+    <script src="js/jquery-3.1.0.min.js"></script>
+    <script src="js/layer/layer.js"></script>
+    <script>
+        $('.btn-expand').on('click', function (e) {
+            e.preventDefault();
+            layer.confirm('确定要购买299元推广人身份吗？', {
+                btn: ['确定', '取消']
+            }, function (index, layero) {
+                layer.close(index)
+                var layer_load = layer.load(1, {
+				shade: [0.3, '#000'] //0.1透明度的白色背景
+			});
+                //按钮【按钮一】的回调
+                $.ajax({
+                    url: '/Home/Shop/buy_hehuoren_cl',
+                    method: 'get',
+                    dataType: 'json',
+                    timeout: 3000,
+                    success: function (data) {
+                        console.log('success' + data);
+                        layer.close(layer_load)
+                        if (data.status) {
+                            layer.msg(data.info);
+                            return;
+                        } else {
+                            layer.msg(data.info);
+                            return;
+                        }
+                    },
+                    complete: function (jqxhr, status) {
+                        console.log('complete' + status);
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.log('error' + errorThrown);
+                        layer.close(layer_load)
+                        layer.msg('超时请重试！');
+                        
+                    }
+                })
+            })
+        })
+    </script>
+</body>
+
+</html>
